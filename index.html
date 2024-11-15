@@ -12,15 +12,20 @@
     <script type="text/javascript" src="./css/functions.js" charset="utf-8"></script>
     <script type="text/javascript" src="./css/love.js" charset="utf-8"></script>
       <style type="text/css">
-	 
-
-        /* Container for positioning the button */
-        
+	   body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff; /* Light blue background */
+            font-family: Arial, sans-serif;
+        }
 
         /* Style the button */
         #playButton {
             padding: 15px 30px;
-            font-size: 200px;
+            font-size: 20px;
             background-color: #4caf50; /* Green */
             color: white;
             border: none;
@@ -48,7 +53,6 @@
       
 	  <div class="loading"></div>
 
-    <button id="playButton" onclick="playSong()">Play  Song 🎶</button>
 
     <!-- Audio element -->
     <audio id="song" src="birth.mp3" type="audio/mpeg" loop>
@@ -61,7 +65,7 @@
               <div id="code">
             <font color="#FF0000">    
 <span class="say"><h1>Hey, MUSKAN 😇</h1></span><br><br>
-<span class="say"> My <b> Friend</b>  😘!</span><br><br>
+<span class="say"> My <b> Dear</b> Friend 😘!</span><br><br>
 <span class="say">The one whose presence adds <b>color</b> to every moment</span><br><br>
 
 <span class="say">Wishing you a year ahead filled with <b>Love</b> 💕,</span><br>
@@ -263,6 +267,7 @@
 
         runAsync().start();
     })();
+    document.addEventListener("click", playSong); 
     </script>
 
     </body></html>
