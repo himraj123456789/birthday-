@@ -4,85 +4,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lovely Papers</title>
+  <title>Happy Birthday Confetti</title>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Zeyada&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
 
     body {
-      height: 100vh;
       margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-size: cover;
-      background-image: url("https://www.psdgraphics.com/wp-content/uploads/2022/01/white-math-paper-texture.jpg");
-      background-position: center center;
+      overflow: hidden;
+      cursor: pointer;
+      background: #fff;
     }
 
-    .paper {
-      background-image: url("https://i0.wp.com/textures.world/wp-content/uploads/2018/10/2-Millimeter-Paper-Background-copy.jpg?ssl=1");
-      background-size: cover;
-      background-position: center center;
-      padding: 20px 50px;
-      transform: rotateZ(-5deg);
-      box-shadow: 1px 10px 15px rgba(0, 0, 0, 0.5);
+    .name {
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 36px;
       position: absolute;
-      min-width: 200px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      top: 37%;
+      color: rebeccapurple;
+      font-family: 'Righteous', cursive;
+      font-size: 93px;
+      letter-spacing: 10px;
+      text-shadow: 2px 4px 11px rgba(0, 0, 0, 0.28);
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: white;
     }
 
-    .paper.heart {
-      position: relative;
-      width: 150px;
-      height: 150px;
-      padding: 0;
-      border-radius: 50%;
-    }
-
-    .paper.image {
-      padding: 10px;
-    }
-
-    .paper.image p {
-      font-size: 24px;
-    }
-
-    img {
-      max-height: 150px;
-      width: 100%;
-      user-select: none;
-    }
-
-    .paper.heart::after {
-      content: "";
-      background-image: url('https://cdn.pixabay.com/photo/2016/03/31/19/25/cartoon-1294994__340.png');
-      width: 100%;
-      height: 100%;
-      position: absolute;
+    canvas.confetti {
+      position: fixed;
       top: 0;
       left: 0;
-      background-size: 120px;
-      background-position: center center;
-      background-repeat: no-repeat;
-      opacity: 0.6;
-    }
-
-    p {
-      font-family: 'Zeyada';
-      font-size: 36px;
-      color: rgb(0, 0, 100);
-      opacity: 0.75;
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
       user-select: none;
-    }
-
-    /* Mobile-specific adjustments */
-    @media (max-width: 600px) {
-      .paper {
-        padding: 15px 30px;
-      }
-      p {
-        font-size: 24px;
-      }
     }
   </style>
 </head>
@@ -95,46 +55,11 @@
     Your browser does not support the audio element.
   </audio>
 
-  <!-- Papers Content -->
-  <div class="paper heart"></div>
+  <!-- Birthday message -->
+  <h3 class="name">Happy Birthday</h3>
 
-  <div class="paper image">
-    <p>congratulations</p>
-    <p>Anjali Mam 😍</p>
-  </div>
-
-  <div class="paper image">
-    <p>U have great</p>
-    <p>Personality 😍</p>
-  </div>
-
-  <div class="paper image">
-    <p></p>
-  </div>
-
-  <div class="paper image">
-    <p>How can be</p>
-    <p>someone so Talented 😀</p>
-  </div>
-
-  <div class="paper red">
-    <p class="p1">and My Favorite</p>
-    <p class="p2">DIDI 😍</p>
-  </div>
-
-  <div class="paper">
-    <p class="p1">Aap Life mai aur bhi achha karogi</p>
-    <p class="p1">Next JRF <span style="color: red !important;">😀</span></p>
-  </div>
-
-  <div class="paper">
-    <p class="p1">Hello Mam 😀</p>
-    <p class="p1">Sorry Mam Apko Late sai Badhai de raha ho <span style="color: red !important;">❤️</span></p>
-  </div>
-
-  <div class="paper">
-    <p class="p1">Drag the papers to move!</p>
-  </div>
+  <!-- Confetti canvas -->
+  <canvas class="confetti" id="canvas"></canvas>
 
   <script>
     window.addEventListener('load', () => {
@@ -145,100 +70,97 @@
       });
     });
 
-    let highestZ = 1;
+    //----------- Variables -----------
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let cx = ctx.canvas.width / 2;
+    let cy = ctx.canvas.height / 2;
 
-    class Paper {
-      holdingPaper = false;
-      mouseTouchX = 0;
-      mouseTouchY = 0;
-      mouseX = 0;
-      mouseY = 0;
-      prevMouseX = 0;
-      prevMouseY = 0;
-      velX = 0;
-      velY = 0;
-      rotation = Math.random() * 30 - 15;
-      currentPaperX = 0;
-      currentPaperY = 0;
-      rotating = false;
+    let confetti = [];
+    const confettiCount = 300;
+    const gravity = 0.5;
+    const terminalVelocity = 5;
+    const drag = 0.075;
+    const colors = [
+      { front: 'red', back: 'darkred' },
+      { front: 'green', back: 'darkgreen' },
+      { front: 'blue', back: 'darkblue' },
+      { front: 'yellow', back: 'darkgoldenrod' },
+      { front: 'orange', back: 'darkorange' },
+      { front: 'pink', back: 'darkmagenta' },
+      { front: 'purple', back: 'indigo' },
+      { front: 'turquoise', back: 'darkcyan' }
+    ];
 
-      init(paper) {
-        // Desktop only drag behavior (disable touch dragging)
-        document.addEventListener('mousemove', (e) => {
-          if (!this.rotating) {
-            this.mouseX = e.clientX;
-            this.mouseY = e.clientY;
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      cx = ctx.canvas.width / 2;
+      cy = ctx.canvas.height / 2;
+    };
 
-            this.velX = this.mouseX - this.prevMouseX;
-            this.velY = this.mouseY - this.prevMouseY;
-          }
+    const randomRange = (min, max) => Math.random() * (max - min) + min;
 
-          const dirX = e.clientX - this.mouseTouchX;
-          const dirY = e.clientY - this.mouseTouchY;
-          const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
-          const dirNormalizedX = dirX / dirLength;
-          const dirNormalizedY = dirY / dirLength;
-
-          const angle = Math.atan2(dirNormalizedY, dirNormalizedX);
-          let degrees = 180 * angle / Math.PI;
-          degrees = (360 + Math.round(degrees)) % 360;
-
-          if (this.rotating) {
-            this.rotation = degrees;
-          }
-
-          if (this.holdingPaper) {
-            if (!this.rotating) {
-              this.currentPaperX += this.velX;
-              this.currentPaperY += this.velY;
-            }
-
-            this.prevMouseX = this.mouseX;
-            this.prevMouseY = this.mouseY;
-
-            paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
-          }
-        });
-
-        paper.addEventListener('mousedown', (e) => {
-          if (this.holdingPaper) return;
-          this.holdingPaper = true;
-
-          paper.style.zIndex = highestZ;
-          highestZ += 1;
-
-          if (e.button === 0) {
-            this.mouseTouchX = this.mouseX;
-            this.mouseTouchY = this.mouseY;
-            this.prevMouseX = this.mouseX;
-            this.prevMouseY = this.mouseY;
-          }
-
-          if (e.button === 2) {
-            this.rotating = true;
-          }
-        });
-
-        window.addEventListener('mouseup', () => {
-          this.holdingPaper = false;
-          this.rotating = false;
+    const initConfetti = () => {
+      for (let i = 0; i < confettiCount; i++) {
+        confetti.push({
+          color: colors[Math.floor(randomRange(0, colors.length))],
+          dimensions: { x: randomRange(10, 20), y: randomRange(10, 30) },
+          position: { x: randomRange(0, canvas.width), y: canvas.height - 1 },
+          rotation: randomRange(0, 2 * Math.PI),
+          scale: { x: 1, y: 1 },
+          velocity: { x: randomRange(-25, 25), y: randomRange(0, -50) }
         });
       }
-    }
+    };
 
-    const papers = Array.from(document.querySelectorAll('.paper'));
-    papers.forEach(paper => {
-      const p = new Paper();
-      p.init(paper);
-    });
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    document.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-    });
+      confetti.forEach((confetto, index) => {
+        const width = confetto.dimensions.x * confetto.scale.x;
+        const height = confetto.dimensions.y * confetto.scale.y;
 
-    // Disable touchmove for drag effect
-    document.addEventListener('touchstart', (e) => { /* do nothing */ }, { passive: false });
-    document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+        ctx.translate(confetto.position.x, confetto.position.y);
+        ctx.rotate(confetto.rotation);
+
+        confetto.velocity.x -= confetto.velocity.x * drag;
+        confetto.velocity.y = Math.min(confetto.velocity.y + gravity, terminalVelocity);
+        confetto.velocity.x += Math.random() > 0.5 ? Math.random() : -Math.random();
+
+        confetto.position.x += confetto.velocity.x;
+        confetto.position.y += confetto.velocity.y;
+
+        if (confetto.position.y >= canvas.height) confetti.splice(index, 1);
+
+        if (confetto.position.x > canvas.width) confetto.position.x = 0;
+        if (confetto.position.x < 0) confetto.position.x = canvas.width;
+
+        confetto.scale.y = Math.cos(confetto.position.y * 0.1);
+        ctx.fillStyle = confetto.scale.y > 0 ? confetto.color.front : confetto.color.back;
+
+        ctx.fillRect(-width / 2, -height / 2, width, height);
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+      });
+
+      if (confetti.length <= 10) initConfetti();
+
+      window.requestAnimationFrame(render);
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+
+    window.addEventListener('click', initConfetti);
+
+    // Disable context menu
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Start the effect
+    initConfetti();
+    render();
   </script>
 
 </body>
