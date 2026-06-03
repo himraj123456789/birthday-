@@ -1,168 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Happy Birthday Confetti</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Birthday Race for Anjali Mam!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 70vh;
+            max-height: 550px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            overflow: hidden;
+            background: #333;
+        }
 
-    body {
-      margin: 0;
-      overflow: hidden;
-      cursor: pointer;
-      background: #fff;
-    }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
-    .name {
-      font-weight: 900;
-      text-transform: uppercase;
-      padding: 36px;
-      position: absolute;
-      left: 0;
-      right: 0;
-      text-align: center;
-      top: 37%;
-      color: rebeccapurple;
-      font-family: 'Righteous', cursive;
-      font-size: 93px;
-      letter-spacing: 10px;
-      text-shadow: 2px 4px 11px rgba(0, 0, 0, 0.28);
-      -webkit-text-stroke-width: 1px;
-      -webkit-text-stroke-color: white;
-    }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
 
-    canvas.confetti {
-      position: fixed;
-      top: 0;
-      left: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      user-select: none;
-    }
-  </style>
+        #collectedDisplay {
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: #ffd32a;
+        }
+
+        /* Mobile Controls Overlay */
+        #controls {
+            display: flex;
+            width: 100%;
+            max-width: 400px;
+            height: 18vh;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            background: #222;
+        }
+
+        .touch-btn {
+            width: 45%;
+            height: 80%;
+            background: #444;
+            border: 2px solid #555;
+            border-radius: 15px;
+            color: white;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .touch-btn:active {
+            background: #ff4757;
+            border-color: #ff6b81;
+        }
+
+        /* Birthday Celebration Screen */
+        #birthdayScreen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 30, 36, 0.98);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: fadeIn 0.8s ease-in-out forwards;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #ff7675;
+            margin: 0 0 5px 0;
+            text-shadow: 2px 2px 8px rgba(255, 118, 117, 0.4);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Cake elements */
+        .cake {
+            position: relative;
+            width: 140px;
+            height: 80px;
+            background: #ffeaa7;
+            border-radius: 10px 10px 0 0;
+            margin-top: 40px;
+            box-shadow: inset 0 12px 0 #fd79a8, inset 0 24px 0 #fff, 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .cake::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background: #fd79a8;
+            box-shadow: inset 0 4px 0 #fff;
+        }
+
+        .candles {
+            position: absolute;
+            top: -25px;
+            left: 25px;
+            width: 90px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .candle {
+            width: 8px;
+            height: 25px;
+            background: linear-gradient(to right, #74b9ff, #a29bfe);
+            position: relative;
+        }
+
+        .flame {
+            position: absolute;
+            top: -12px;
+            left: -2px;
+            width: 12px;
+            height: 12px;
+            background: #ff9f43;
+            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+            animation: flicker 0.6s infinite alternate;
+            box-shadow: 0 0 10px #ff9f43;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
+        .btn {
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: #fd79a8;
+            border: none;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .header-info {
+            font-size: 14px;
+            color: #888;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
 
-  <!-- Background music -->
-  <audio id="bgMusic" autoplay loop muted>
-    <source src="bensound-love%20(2).mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+    <div class="header-info">Steer using the buttons below or keyboard</div>
 
-  <!-- Birthday message -->
-  <h3 class="name"> 😃 congratulations  Anjali mam [PHD] 😃</h3>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <div id="ui">
+            <div id="collectedDisplay">Letters: 0 / 19</div>
+        </div>
 
-  <!-- Confetti canvas -->
-  <canvas class="confetti" id="canvas"></canvas>
+        <div id="birthdayScreen">
+            <h1>🎂 Happy Birthday 🎂</h1>
+            <h1 style="color: #fd79a8;">Anjali Mam!</h1>
+            
+            <div class="cake">
+                <div class="candles">
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                </div>
+            </div>
+            <button class="btn" onclick="resetGame()">Race Again 🏁</button>
+        </div>
+    </div>
 
-  <script>
-    window.addEventListener('load', () => {
-      const music = document.getElementById('bgMusic');
-      music.muted = false;
-      music.play().catch(e => {
-        console.warn('Autoplay prevented', e);
-      });
-    });
+    <div id="controls">
+        <div class="touch-btn" id="leftBtn">◀</div>
+        <div class="touch-btn" id="rightBtn">▶</div>
+    </div>
 
-    //----------- Variables -----------
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let cx = ctx.canvas.width / 2;
-    let cy = ctx.canvas.height / 2;
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const birthdayScreen = document.getElementById("birthdayScreen");
+        const collectedDisplay = document.getElementById("collectedDisplay");
 
-    let confetti = [];
-    const confettiCount = 300;
-    const gravity = 0.5;
-    const terminalVelocity = 5;
-    const drag = 0.075;
-    const colors = [
-      { front: 'red', back: 'darkred' },
-      { front: 'green', back: 'darkgreen' },
-      { front: 'blue', back: 'darkblue' },
-      { front: 'yellow', back: 'darkgoldenrod' },
-      { front: 'orange', back: 'darkorange' },
-      { front: 'pink', back: 'darkmagenta' },
-      { front: 'purple', back: 'indigo' },
-      { front: 'turquoise', back: 'darkcyan' }
-    ];
+        // Secret target phrase configuration
+        const targetPhrase = "HAPPYBDAYANJALIMAM";
+        let currentLetterIndex = 0;
+        let gameActive = true;
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      cx = ctx.canvas.width / 2;
-      cy = ctx.canvas.height / 2;
-    };
+        const car = {
+            x: 180,
+            y: 470,
+            width: 42,
+            height: 75,
+            speed: 7,
+            color: "#ff4757"
+        };
 
-    const randomRange = (min, max) => Math.random() * (max - min) + min;
+        const keys = { Left: false, Right: false };
 
-    const initConfetti = () => {
-      for (let i = 0; i < confettiCount; i++) {
-        confetti.push({
-          color: colors[Math.floor(randomRange(0, colors.length))],
-          dimensions: { x: randomRange(10, 20), y: randomRange(10, 30) },
-          position: { x: randomRange(0, canvas.width), y: canvas.height - 1 },
-          rotation: randomRange(0, 2 * Math.PI),
-          scale: { x: 1, y: 1 },
-          velocity: { x: randomRange(-25, 25), y: randomRange(0, -50) }
+        let roadOffset = 0;
+        let activeLetters = [];
+        let spawnTimer = 0;
+
+        // Mobile Button Touch Events
+        const leftBtn = document.getElementById("leftBtn");
+        const rightBtn = document.getElementById("rightBtn");
+
+        leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.Left = true; });
+        leftBtn.addEventListener("touchend", () => keys.Left = false);
+        rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.Right = true; });
+        rightBtn.addEventListener("touchend", () => keys.Right = false);
+
+        // Keyboard Fallback for desktop testing
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.Left = true;
+            if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.Right = true;
         });
-      }
-    };
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.Left = false;
+            if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.Right = false;
+        });
 
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function spawnLetter() {
+            if (currentLetterIndex >= targetPhrase.length) return;
+            
+            // Random chance to drop the exact letter needed next or a completely random trick letter
+            const isCorrect = Math.random() < 0.4;
+            let letterChar = "";
 
-      confetti.forEach((confetto, index) => {
-        const width = confetto.dimensions.x * confetto.scale.x;
-        const height = confetto.dimensions.y * confetto.scale.y;
+            if (isCorrect) {
+                letterChar = targetPhrase[currentLetterIndex];
+            } else {
+                const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                letterChar = alpha[Math.floor(Math.random() * alpha.length)];
+            }
 
-        ctx.translate(confetto.position.x, confetto.position.y);
-        ctx.rotate(confetto.rotation);
+            activeLetters.push({
+                x: Math.random() * (canvas.width - 80) + 40,
+                y: -40,
+                char: letterChar,
+                speed: 5
+            });
+        }
 
-        confetto.velocity.x -= confetto.velocity.x * drag;
-        confetto.velocity.y = Math.min(confetto.velocity.y + gravity, terminalVelocity);
-        confetto.velocity.x += Math.random() > 0.5 ? Math.random() : -Math.random();
+        function update() {
+            if (!gameActive) return;
 
-        confetto.position.x += confetto.velocity.x;
-        confetto.position.y += confetto.velocity.y;
+            roadOffset += 7;
+            if (roadOffset >= 40) roadOffset = 0;
 
-        if (confetto.position.y >= canvas.height) confetti.splice(index, 1);
+            if (keys.Left && car.x > 35) car.x -= car.speed;
+            if (keys.Right && car.x < canvas.width - car.width - 35) car.x += car.speed;
 
-        if (confetto.position.x > canvas.width) confetto.position.x = 0;
-        if (confetto.position.x < 0) confetto.position.x = canvas.width;
+            spawnTimer++;
+            if (spawnTimer > 35) {
+                spawnLetter();
+                spawnTimer = 0;
+            }
 
-        confetto.scale.y = Math.cos(confetto.position.y * 0.1);
-        ctx.fillStyle = confetto.scale.y > 0 ? confetto.color.front : confetto.color.back;
+            for (let i = activeLetters.length - 1; i >= 0; i--) {
+                let item = activeLetters[i];
+                item.y += item.speed;
 
-        ctx.fillRect(-width / 2, -height / 2, width, height);
+                // Check collision 
+                if (item.x + 12 > car.x && item.x - 12 < car.x + car.width &&
+                    item.y + 15 > car.y && item.y - 15 < car.y + car.height) {
+                    
+                    if (item.char === targetPhrase[currentLetterIndex]) {
+                        currentLetterIndex++;
+                        collectedDisplay.innerText = `Letters: ${currentLetterIndex} / ${targetPhrase.length}`;
+                        
+                        if (currentLetterIndex >= targetPhrase.length) {
+                            endGame();
+                        }
+                    }
+                    activeLetters.splice(i, 1);
+                    continue;
+                }
 
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-      });
+                if (item.y > canvas.height) {
+                    activeLetters.splice(i, 1);
+                }
+            }
+        }
 
-      if (confetti.length <= 10) initConfetti();
+        function draw() {
+            // Track asphalt road
+            ctx.fillStyle = "#3e4149";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      window.requestAnimationFrame(render);
-    };
+            // Sidewalk grass areas
+            ctx.fillStyle = "#2ecc71";
+            ctx.fillRect(0, 0, 30, canvas.height);
+            ctx.fillRect(canvas.width - 30, 0, 30, canvas.height);
 
-    window.addEventListener('resize', resizeCanvas);
+            // Red strip borders
+            ctx.fillStyle = "#ea2027";
+            ctx.fillRect(25, 0, 5, canvas.height);
+            ctx.fillRect(canvas.width - 30, 0, 5, canvas.height);
 
-    window.addEventListener('click', initConfetti);
+            // Lane markers moving down
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 6;
+            ctx.setLineDash([25, 25]);
+            ctx.lineDashOffset = -roadOffset;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-    // Disable context menu
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
+            // Player car graphics
+            ctx.fillStyle = car.color;
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+            
+            ctx.fillStyle = "#1e272e";
+            ctx.fillRect(car.x - 5, car.y + 12, 5, 14);
+            ctx.fillRect(car.x + car.width, car.y + 12, 5, 14);
+            ctx.fillRect(car.x - 5, car.y + 50, 5, 14);
+            ctx.fillRect(car.x + car.width, car.y + 50, 5, 14);
+            
+            ctx.fillStyle = "#dff9fb";
+            ctx.fillRect(car.x + 4, car.y + 22, car.width - 8, 12);
 
-    // Start the effect
-    initConfetti();
-    render();
-  </script>
+            // Draw letters streaming down track
+            ctx.font = "bold 30px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            activeLetters.forEach(item => {
+                if (item.char === targetPhrase[currentLetterIndex]) {
+                    ctx.fillStyle = "#f1c40f"; // Highlight the next correct letter slightly
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#f1c40f";
+                } else {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fillText(item.char, item.x, item.y);
+                ctx.shadowBlur = 0;
+            });
+        }
 
+        function gameLoop() {
+            update();
+            draw();
+            if (gameActive) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            birthdayScreen.style.display = "flex";
+        }
+
+        function resetGame() {
+            currentLetterIndex = 0;
+            activeLetters = [];
+            car.x = 180;
+            gameActive = true;
+            birthdayScreen.style.display = "none";
+            collectedDisplay.innerText = `Letters: 0 / ${targetPhrase.length}`;
+            gameLoop();
+        }
+
+        gameLoop();
+    </script>
 </body>
 </html>
-
