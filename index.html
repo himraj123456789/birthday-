@@ -1,425 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Birthday Race for Anjali Mam!</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #1a1a1a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            overflow: hidden;
-            color: white;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        #gameContainer {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 70vh;
-            max-height: 550px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
-            overflow: hidden;
-            background: #333;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        #ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
-        }
-
-        #collectedDisplay {
-            font-weight: bold;
-            font-size: 18px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
-            background: rgba(0, 0, 0, 0.6);
-            padding: 6px 16px;
-            border-radius: 20px;
-            color: #ffd32a;
-        }
-
-        /* Mobile Controls Overlay */
-        #controls {
-            display: flex;
-            width: 100%;
-            max-width: 400px;
-            height: 18vh;
-            justify-content: space-between;
-            padding: 10px 20px;
-            box-sizing: border-box;
-            background: #222;
-        }
-
-        .touch-btn {
-            width: 45%;
-            height: 80%;
-            background: #444;
-            border: 2px solid #555;
-            border-radius: 15px;
-            color: white;
-            font-size: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-        }
-
-        .touch-btn:active {
-            background: #ff4757;
-            border-color: #ff6b81;
-        }
-
-        /* Birthday Celebration Screen */
-        #birthdayScreen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(30, 30, 36, 0.98);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            animation: fadeIn 0.8s ease-in-out forwards;
-            z-index: 10;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        h1 {
-            font-size: 28px;
-            color: #ff7675;
-            margin: 0 0 5px 0;
-            text-shadow: 2px 2px 8px rgba(255, 118, 117, 0.4);
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        /* Cake elements */
-        .cake {
-            position: relative;
-            width: 140px;
-            height: 80px;
-            background: #ffeaa7;
-            border-radius: 10px 10px 0 0;
-            margin-top: 40px;
-            box-shadow: inset 0 12px 0 #fd79a8, inset 0 24px 0 #fff, 0 4px 10px rgba(0,0,0,0.3);
-        }
-        
-        .cake::before {
-            content: '';
-            position: absolute;
-            top: 40px;
-            left: 0;
-            width: 100%;
-            height: 12px;
-            background: #fd79a8;
-            box-shadow: inset 0 4px 0 #fff;
-        }
-
-        .candles {
-            position: absolute;
-            top: -25px;
-            left: 25px;
-            width: 90px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .candle {
-            width: 8px;
-            height: 25px;
-            background: linear-gradient(to right, #74b9ff, #a29bfe);
-            position: relative;
-        }
-
-        .flame {
-            position: absolute;
-            top: -12px;
-            left: -2px;
-            width: 12px;
-            height: 12px;
-            background: #ff9f43;
-            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
-            animation: flicker 0.6s infinite alternate;
-            box-shadow: 0 0 10px #ff9f43;
-        }
-
-        @keyframes flicker {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
-        }
-
-        .btn {
-            margin-top: 30px;
-            padding: 12px 30px;
-            background: #fd79a8;
-            border: none;
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        
-        .header-info {
-            font-size: 14px;
-            color: #888;
-            margin: 10px 0;
-            text-align: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phone Motion Visualizer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:linear-gradient(135deg,#050816,#0f172a,#1e293b);font-family:Arial,sans-serif;color:#fff}
+#container{width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;perspective:1200px}
+#board{width:320px;height:320px;border:3px solid rgba(255,255,255,.3);border-radius:25px;position:relative;transform-style:preserve-3d;background:rgba(255,255,255,.05);box-shadow:0 0 40px cyan;overflow:hidden}
+#ball{width:45px;height:45px;border-radius:50%;position:absolute;left:138px;top:138px;background:radial-gradient(circle at 30% 30%,#fff,#0ff,#06f);box-shadow:0 0 30px cyan}
+.grid{position:absolute;width:100%;height:100%;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:32px 32px}
+#hud{position:absolute;top:15px;left:15px;width:330px;padding:12px;border-radius:15px;background:rgba(0,0,0,.4);line-height:1.7}
+button{margin-top:10px;padding:10px 18px;border:none;border-radius:10px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer}
+h2{color:#0ff}
+</style>
 </head>
 <body>
-
-    <div class="header-info">Steer using the buttons below or keyboard</div>
-
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="400" height="600"></canvas>
-        
-        <div id="ui">
-            <div id="collectedDisplay">Letters: 0 / 19</div>
-        </div>
-
-        <div id="birthdayScreen">
-            <h1>🎂 Happy Birthday 🎂</h1>
-            <h1 style="color: #fd79a8;">Anjali Mam!</h1>
-            
-            <div class="cake">
-                <div class="candles">
-                    <div class="candle"><div class="flame"></div></div>
-                    <div class="candle"><div class="flame"></div></div>
-                    <div class="candle"><div class="flame"></div></div>
-                </div>
-            </div>
-            <button class="btn" onclick="resetGame()">Race Again 🏁</button>
-        </div>
-    </div>
-
-    <div id="controls">
-        <div class="touch-btn" id="leftBtn">◀</div>
-        <div class="touch-btn" id="rightBtn">▶</div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const birthdayScreen = document.getElementById("birthdayScreen");
-        const collectedDisplay = document.getElementById("collectedDisplay");
-
-        // Secret target phrase configuration
-        const targetPhrase = "HAPPYBDAYANJALIMAM";
-        let currentLetterIndex = 0;
-        let gameActive = true;
-
-        const car = {
-            x: 180,
-            y: 470,
-            width: 42,
-            height: 75,
-            speed: 7,
-            color: "#ff4757"
-        };
-
-        const keys = { Left: false, Right: false };
-
-        let roadOffset = 0;
-        let activeLetters = [];
-        let spawnTimer = 0;
-
-        // Mobile Button Touch Events
-        const leftBtn = document.getElementById("leftBtn");
-        const rightBtn = document.getElementById("rightBtn");
-
-        leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.Left = true; });
-        leftBtn.addEventListener("touchend", () => keys.Left = false);
-        rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.Right = true; });
-        rightBtn.addEventListener("touchend", () => keys.Right = false);
-
-        // Keyboard Fallback for desktop testing
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.Left = true;
-            if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.Right = true;
-        });
-        window.addEventListener("keyup", (e) => {
-            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.Left = false;
-            if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.Right = false;
-        });
-
-        function spawnLetter() {
-            if (currentLetterIndex >= targetPhrase.length) return;
-            
-            // Random chance to drop the exact letter needed next or a completely random trick letter
-            const isCorrect = Math.random() < 0.4;
-            let letterChar = "";
-
-            if (isCorrect) {
-                letterChar = targetPhrase[currentLetterIndex];
-            } else {
-                const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                letterChar = alpha[Math.floor(Math.random() * alpha.length)];
-            }
-
-            activeLetters.push({
-                x: Math.random() * (canvas.width - 80) + 40,
-                y: -40,
-                char: letterChar,
-                speed: 5
-            });
-        }
-
-        function update() {
-            if (!gameActive) return;
-
-            roadOffset += 7;
-            if (roadOffset >= 40) roadOffset = 0;
-
-            if (keys.Left && car.x > 35) car.x -= car.speed;
-            if (keys.Right && car.x < canvas.width - car.width - 35) car.x += car.speed;
-
-            spawnTimer++;
-            if (spawnTimer > 35) {
-                spawnLetter();
-                spawnTimer = 0;
-            }
-
-            for (let i = activeLetters.length - 1; i >= 0; i--) {
-                let item = activeLetters[i];
-                item.y += item.speed;
-
-                // Check collision 
-                if (item.x + 12 > car.x && item.x - 12 < car.x + car.width &&
-                    item.y + 15 > car.y && item.y - 15 < car.y + car.height) {
-                    
-                    if (item.char === targetPhrase[currentLetterIndex]) {
-                        currentLetterIndex++;
-                        collectedDisplay.innerText = `Letters: ${currentLetterIndex} / ${targetPhrase.length}`;
-                        
-                        if (currentLetterIndex >= targetPhrase.length) {
-                            endGame();
-                        }
-                    }
-                    activeLetters.splice(i, 1);
-                    continue;
-                }
-
-                if (item.y > canvas.height) {
-                    activeLetters.splice(i, 1);
-                }
-            }
-        }
-
-        function draw() {
-            // Track asphalt road
-            ctx.fillStyle = "#3e4149";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Sidewalk grass areas
-            ctx.fillStyle = "#2ecc71";
-            ctx.fillRect(0, 0, 30, canvas.height);
-            ctx.fillRect(canvas.width - 30, 0, 30, canvas.height);
-
-            // Red strip borders
-            ctx.fillStyle = "#ea2027";
-            ctx.fillRect(25, 0, 5, canvas.height);
-            ctx.fillRect(canvas.width - 30, 0, 5, canvas.height);
-
-            // Lane markers moving down
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 6;
-            ctx.setLineDash([25, 25]);
-            ctx.lineDashOffset = -roadOffset;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, 0);
-            ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Player car graphics
-            ctx.fillStyle = car.color;
-            ctx.fillRect(car.x, car.y, car.width, car.height);
-            
-            ctx.fillStyle = "#1e272e";
-            ctx.fillRect(car.x - 5, car.y + 12, 5, 14);
-            ctx.fillRect(car.x + car.width, car.y + 12, 5, 14);
-            ctx.fillRect(car.x - 5, car.y + 50, 5, 14);
-            ctx.fillRect(car.x + car.width, car.y + 50, 5, 14);
-            
-            ctx.fillStyle = "#dff9fb";
-            ctx.fillRect(car.x + 4, car.y + 22, car.width - 8, 12);
-
-            // Draw letters streaming down track
-            ctx.font = "bold 30px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            
-            activeLetters.forEach(item => {
-                if (item.char === targetPhrase[currentLetterIndex]) {
-                    ctx.fillStyle = "#f1c40f"; // Highlight the next correct letter slightly
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = "#f1c40f";
-                } else {
-                    ctx.fillStyle = "#ffffff";
-                    ctx.shadowBlur = 0;
-                }
-                ctx.fillText(item.char, item.x, item.y);
-                ctx.shadowBlur = 0;
-            });
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-            if (gameActive) {
-                requestAnimationFrame(gameLoop);
-            }
-        }
-
-        function endGame() {
-            gameActive = false;
-            birthdayScreen.style.display = "flex";
-        }
-
-        function resetGame() {
-            currentLetterIndex = 0;
-            activeLetters = [];
-            car.x = 180;
-            gameActive = true;
-            birthdayScreen.style.display = "none";
-            collectedDisplay.innerText = `Letters: 0 / ${targetPhrase.length}`;
-            gameLoop();
-        }
-
-        gameLoop();
-    </script>
+<div id="hud">
+<h2>📱 Motion Visualizer</h2>
+<div id="ori"></div>
+<div id="acc"></div>
+<div id="gyro"></div>
+<button onclick="enableMotion()">Enable Motion</button>
+</div>
+<div id="container">
+<div id="board">
+<div class="grid"></div>
+<div id="ball"></div>
+</div>
+</div>
+<script>
+const board=document.getElementById("board");
+const ball=document.getElementById("ball");
+let x=138,y=138;
+function update(alpha,beta,gamma){
+document.getElementById("ori").innerHTML=`Orientation<br>α ${alpha.toFixed(1)}°<br>β ${beta.toFixed(1)}°<br>γ ${gamma.toFixed(1)}°`;
+board.style.transform=`rotateX(${beta}deg) rotateY(${gamma}deg)`;
+x=Math.max(0,Math.min(275,138+gamma*2));
+y=Math.max(0,Math.min(275,138+beta*2));
+ball.style.left=x+"px";
+ball.style.top=y+"px";
+}
+function enableMotion(){
+const ori=(e)=>update(e.alpha||0,e.beta||0,e.gamma||0);
+const mot=(e)=>{
+let a=e.accelerationIncludingGravity||{x:0,y:0,z:0};
+document.getElementById("acc").innerHTML=`<br>Acceleration<br>X ${a.x.toFixed(2)}<br>Y ${a.y.toFixed(2)}<br>Z ${a.z.toFixed(2)}`;
+let r=e.rotationRate||{};
+document.getElementById("gyro").innerHTML=`<br>Gyroscope<br>α ${((r.alpha)||0).toFixed(2)}<br>β ${((r.beta)||0).toFixed(2)}<br>γ ${((r.gamma)||0).toFixed(2)}`;
+};
+if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
+DeviceOrientationEvent.requestPermission().then(p=>{if(p==="granted"){window.addEventListener("deviceorientation",ori);window.addEventListener("devicemotion",mot);}});
+}else{
+window.addEventListener("deviceorientation",ori);
+window.addEventListener("devicemotion",mot);
+}
+}
+</script>
 </body>
 </html>
