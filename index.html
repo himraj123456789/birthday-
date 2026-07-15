@@ -3,60 +3,747 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phone Motion Visualizer</title>
+<title>Topic Ledger — PhD Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{overflow:hidden;background:linear-gradient(135deg,#050816,#0f172a,#1e293b);font-family:Arial,sans-serif;color:#fff}
-#container{width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;perspective:1200px}
-#board{width:320px;height:320px;border:3px solid rgba(255,255,255,.3);border-radius:25px;position:relative;transform-style:preserve-3d;background:rgba(255,255,255,.05);box-shadow:0 0 40px cyan;overflow:hidden}
-#ball{width:45px;height:45px;border-radius:50%;position:absolute;left:138px;top:138px;background:radial-gradient(circle at 30% 30%,#fff,#0ff,#06f);box-shadow:0 0 30px cyan}
-.grid{position:absolute;width:100%;height:100%;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:32px 32px}
-#hud{position:absolute;top:15px;left:15px;width:330px;padding:12px;border-radius:15px;background:rgba(0,0,0,.4);line-height:1.7}
-button{margin-top:10px;padding:10px 18px;border:none;border-radius:10px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer}
-h2{color:#0ff}
+  :root{
+    --bg:#0f1425;
+    --bg-2:#151b32;
+    --panel:#1a2140;
+    --panel-2:#202849;
+    --line:#2c3560;
+    --line-soft:#242c50;
+    --ink:#e9e6da;
+    --ink-dim:#9aa1c4;
+    --ink-faint:#6b7299;
+    --amber:#d9a441;
+    --amber-dim:#b98a34;
+    --teal:#4f9c82;
+    --teal-dim:#2f5f4f;
+    --red:#c0654f;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, #171e3a 0%, var(--bg) 55%);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  ::selection{background:var(--amber-dim);color:#0f1425;}
+
+  a{color:var(--amber);}
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:48px 0 28px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:18px;height:1px;
+    background:var(--amber-dim);
+    display:inline-block;
+  }
+  h1{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,42px);
+    margin:0 0 8px;
+    letter-spacing:-.01em;
+  }
+  .subtitle{
+    color:var(--ink-dim);
+    font-size:15px;
+    max-width:56ch;
+    margin-bottom:28px;
+  }
+
+  /* overall stat row */
+  .stat-row{
+    display:flex;
+    align-items:baseline;
+    gap:22px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .stat-big{
+    font-family:'JetBrains Mono',monospace;
+    font-size:44px;
+    font-weight:700;
+    color:var(--amber);
+    line-height:1;
+  }
+  .stat-big span{font-size:20px;color:var(--ink-faint);}
+  .stat-label{
+    font-size:12px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+  .stat-count{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--ink-dim);
+    font-size:13px;
+  }
+
+  /* signature element: the ledger spine */
+  .spine{
+    display:flex;
+    gap:3px;
+    height:34px;
+    border:1px solid var(--line);
+    padding:3px;
+    border-radius:var(--radius);
+    background:var(--bg-2);
+    margin-bottom:10px;
+  }
+  .spine-seg{
+    position:relative;
+    flex:1 1 0;
+    background:var(--panel);
+    border-radius:2px;
+    overflow:hidden;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:border-color .15s ease;
+  }
+  .spine-seg:hover{border-color:var(--amber-dim);}
+  .spine-fill{
+    position:absolute;left:0;bottom:0;top:0;
+    width:0%;
+    background:linear-gradient(180deg,var(--teal) 0%, var(--teal-dim) 100%);
+    transition:width .35s ease;
+  }
+  .spine-num{
+    position:relative;
+    z-index:1;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--ink-dim);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+  }
+  .spine-legend{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--ink-faint);
+    margin-bottom:30px;
+  }
+
+  /* ---------- CONTROLS ---------- */
+  .controls{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:rgba(15,20,37,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    margin-bottom:10px;
+  }
+  .controls-inner{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  #search{
+    flex:1 1 220px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 12px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  #search::placeholder{color:var(--ink-faint);}
+  #search:focus{border-color:var(--amber-dim);}
+
+  .btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:9px 13px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .btn:hover{border-color:var(--amber-dim);color:var(--ink);}
+  .btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+  /* ---------- PARTS / CHAPTERS / SUBS ---------- */
+  .part{
+    margin-top:34px;
+  }
+  .part-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    padding:10px 0;
+    border-bottom:2px solid var(--line);
+  }
+  .part-title{
+    font-family:'Source Serif 4',serif;
+    font-weight:600;
+    font-size:19px;
+    flex:1;
+  }
+  .part-title .roman{color:var(--amber);margin-right:8px;}
+  .part-meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+  .part-bar{
+    width:70px;
+    height:5px;
+    background:var(--panel-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .part-bar-fill{
+    height:100%;
+    background:var(--teal);
+    width:0%;
+    transition:width .35s ease;
+  }
+  .caret{
+    color:var(--ink-faint);
+    font-size:11px;
+    transition:transform .18s ease;
+    width:12px;
+  }
+  .part.collapsed .caret{transform:rotate(-90deg);}
+  .part-body{overflow:hidden;}
+  .part.collapsed .part-body{display:none;}
+
+  .chapter{
+    border-left:1px solid var(--line-soft);
+    margin-left:5px;
+    padding-left:18px;
+    margin-top:4px;
+  }
+  .chapter-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    padding:12px 0;
+  }
+  .chapter-title{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    flex:1;
+    color:var(--ink);
+  }
+  .chapter-meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+  .chapter.collapsed .caret{transform:rotate(-90deg);}
+  .chapter-body{overflow:hidden;}
+  .chapter.collapsed .chapter-body{display:none;}
+
+  .sub{margin:2px 0 18px;}
+  .sub-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--amber-dim);
+    letter-spacing:.03em;
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .sub-title .n{color:var(--ink-faint);}
+
+  .topic{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:6px 8px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    font-size:14px;
+    color:var(--ink-dim);
+    transition:background .12s ease;
+  }
+  .topic:hover{background:var(--panel);}
+  .topic input{display:none;}
+  .box{
+    flex:0 0 15px;
+    width:15px;height:15px;
+    margin-top:2px;
+    border:1px solid var(--ink-faint);
+    border-radius:2px;
+    position:relative;
+    transition:all .15s ease;
+  }
+  .topic.done .box{
+    background:var(--teal);
+    border-color:var(--teal);
+  }
+  .topic.done .box::after{
+    content:"";
+    position:absolute;
+    left:4px;top:1px;
+    width:4px;height:8px;
+    border:solid #0f1425;
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .topic.done .label{
+    color:var(--ink-faint);
+    text-decoration:line-through;
+    text-decoration-color:var(--line);
+  }
+  .label{flex:1;}
+  .topic.hidden{display:none;}
+  .sub.hidden, .chapter.hidden, .part.hidden{display:none;}
+  mark{
+    background:var(--amber-dim);
+    color:#0f1425;
+    border-radius:2px;
+    padding:0 1px;
+  }
+
+  footer{
+    max-width:920px;margin:60px auto 0;padding:20px;
+    border-top:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  @media (max-width:600px){
+    .stat-big{font-size:34px;}
+    .controls-inner{gap:8px;}
+    .btn{padding:8px 10px;font-size:10px;}
+  }
 </style>
 </head>
 <body>
-<div id="hud">
-<h2>📱 Motion Visualizer</h2>
-<div id="ori"></div>
-<div id="acc"></div>
-<div id="gyro"></div>
-<button onclick="enableMotion()">Enable Motion</button>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Topic Ledger</div>
+    <h1>PhD Interview Prep</h1>
+    <div class="subtitle">Mathematical foundations through Machine Learning, Deep Learning, NLP and Computer Vision — every topic tracked, nothing forgotten. Progress is saved to this browser automatically.</div>
+
+    <div class="stat-row">
+      <div>
+        <div class="stat-big" id="overallPct">0<span>%</span></div>
+        <div class="stat-label">Overall coverage</div>
+      </div>
+      <div class="stat-count" id="overallCount">0 / 0 topics marked complete</div>
+    </div>
+
+    <div class="spine" id="spine"></div>
+    <div class="spine-legend" id="spineLegend"></div>
+  </header>
+
+  <div class="controls">
+    <div class="controls-inner">
+      <input id="search" type="text" placeholder="Filter topics… e.g. 'attention', 'SVD', 'gradient'">
+      <button class="btn" id="expandAll">Expand all</button>
+      <button class="btn" id="collapseAll">Collapse all</button>
+      <button class="btn danger" id="resetProgress">Reset progress</button>
+    </div>
+  </div>
+
+  <main id="content"></main>
+
+  <footer>
+    <span>Stored locally in this browser — clearing site data will erase progress.</span>
+    <span id="lastSaved">—</span>
+  </footer>
 </div>
-<div id="container">
-<div id="board">
-<div class="grid"></div>
-<div id="ball"></div>
-</div>
-</div>
+
+<script id="topic-data" type="application/json">[{"title": "PART I \u2014 MATHEMATICAL FOUNDATIONS FOR ML/DL/NLP/CV", "chapters": [{"title": "1. Linear Algebra", "subs": [{"title": "1.1 Vectors & Vector Spaces", "topics": ["Scalars, vectors, vector spaces, subspaces", "Linear combinations, span", "Linear independence and dependence", "Basis and dimension of a vector space", "Change of basis", "Inner product spaces, dot product", "Norms: L0, L1, L2, L\u221e, Frobenius norm", "Orthogonality and orthonormal vectors", "Cauchy--Schwarz inequality", "Triangle inequality"]}, {"title": "1.2 Matrices & Matrix Operations", "topics": ["Matrix addition, multiplication, transpose", "Identity, diagonal, symmetric, orthogonal matrices", "Matrix rank and nullity, rank-nullity theorem", "Trace and determinant of a matrix", "Matrix inverse, pseudo-inverse (Moore--Penrose)", "Positive definite / semi-definite matrices", "Special matrices: sparse, Toeplitz, Hermitian", "Block matrices and block operations"]}, {"title": "1.3 Linear Transformations", "topics": ["Linear maps and their matrix representation", "Kernel (null space) and image (column space)", "Injective, surjective, bijective transformations", "Projection matrices and orthogonal projections", "Affine transformations"]}, {"title": "1.4 Eigenvalues, Eigenvectors & Decompositions", "topics": ["Eigenvalues, eigenvectors, eigenspaces", "Characteristic polynomial", "Diagonalization of matrices", "Spectral theorem for symmetric matrices", "Singular Value Decomposition (SVD) and its geometric interpretation", "Eigendecomposition vs SVD", "LU decomposition", "QR decomposition", "Cholesky decomposition", "Low-rank matrix approximation (Eckart--Young theorem)"]}, {"title": "1.5 Systems of Linear Equations", "topics": ["Gaussian elimination, row echelon form", "Solving Ax = b (existence & uniqueness)", "Least squares solutions and normal equations", "Overdetermined and underdetermined systems"]}, {"title": "1.6 Applications to ML/DL", "topics": ["PCA via eigendecomposition/SVD", "Whitening and decorrelation", "Matrix factorization (recommender systems)", "Tensors and tensor operations (rank, contraction)", "Jacobian and Hessian as matrices", "Weight matrices, matrix calculus in backpropagation"]}]}, {"title": "2. Probability & Statistics", "subs": [{"title": "2.1 Probability Foundations", "topics": ["Sample space, events, axioms of probability", "Conditional probability and independence", "Bayes' theorem and its derivation", "Law of total probability", "Chain rule of probability"]}, {"title": "2.2 Random Variables & Distributions", "topics": ["Discrete vs continuous random variables", "PMF, PDF, CDF", "Joint, marginal, and conditional distributions", "Expectation, variance, covariance, correlation", "Moments and moment generating functions", "Common discrete distributions: Bernoulli, Binomial, Poisson,", "Common continuous distributions: Uniform, Gaussian/Normal,", "Multivariate Gaussian distribution, covariance matrices"]}, {"title": "2.3 Estimation Theory", "topics": ["Maximum Likelihood Estimation (MLE)", "Maximum A Posteriori estimation (MAP)", "Bias, variance, and consistency of estimators", "Sufficient statistics", "Fisher information and Cram\u00e9r--Rao bound", "Bayesian inference (priors, posteriors, conjugate priors)", "Point estimation vs interval estimation"]}, {"title": "2.4 Limit Theorems & Sampling", "topics": ["Law of Large Numbers (weak & strong)", "Central Limit Theorem", "Sampling distributions", "Bootstrap and resampling methods", "Markov Chain Monte Carlo (MCMC), Gibbs sampling, Metropolis-Hastings", "Importance sampling, rejection sampling"]}, {"title": "2.5 Hypothesis Testing & Statistical Inference", "topics": ["Null and alternative hypotheses", "p-values, significance level, Type I/II errors", "t-test, chi-squared test, ANOVA", "Confidence intervals", "A/B testing fundamentals"]}, {"title": "2.6 Information Theory", "topics": ["Entropy and differential entropy", "Cross-entropy", "Kullback--Leibler (KL) divergence", "Jensen--Shannon divergence", "Mutual information", "Channel capacity (brief)"]}, {"title": "2.7 Stochastic Processes", "topics": ["Markov chains: states, transition matrices, stationary distributions", "Hidden Markov Models (HMMs)", "Random walks", "Poisson processes (brief)"]}]}, {"title": "3. Calculus & Optimization", "subs": [{"title": "3.1 Differential Calculus", "topics": ["Limits, continuity, differentiability", "Derivatives and partial derivatives", "Gradient, directional derivative", "Chain rule (single & multivariable)", "Jacobian matrix", "Hessian matrix and second-order conditions", "Taylor series expansion (1st and 2nd order approximations)"]}, {"title": "3.2 Matrix Calculus", "topics": ["Gradients of scalar functions w.r.t. vectors/matrices", "Common derivative identities used in backpropagation", "Vector-Jacobian products", "Automatic differentiation (forward mode vs reverse mode)"]}, {"title": "3.3 Convex Optimization", "topics": ["Convex sets and convex functions", "Conditions for convexity (first/second order)", "Local vs global minima", "Convex optimization problems", "Lagrange multipliers and Lagrangian duality", "Karush--Kuhn--Tucker (KKT) conditions", "Duality gap, strong/weak duality", "Constrained vs unconstrained optimization"]}, {"title": "3.4 Optimization Algorithms", "topics": ["Gradient Descent (batch, stochastic, mini-batch)", "Momentum, Nesterov Accelerated Gradient", "Adagrad, RMSProp, Adam, AdamW", "Newton's method, Quasi-Newton methods (BFGS, L-BFGS)", "Learning rate scheduling, warm restarts", "Convergence analysis of gradient methods", "Second-order optimization (brief)"]}, {"title": "3.5 Integral Calculus (as needed)", "topics": ["Definite/indefinite integrals", "Multivariable integration", "Expectation as an integral", "Normalizing constants in probability distributions"]}]}, {"title": "4. Key Mathematical Theorems & Concepts for ML", "subs": [{"title": "4.1 Core Theorems", "topics": ["Bayes' Theorem", "Central Limit Theorem", "Law of Large Numbers", "Universal Approximation Theorem (neural networks)", "No Free Lunch Theorem", "Mercer's Theorem (kernel methods)", "Representer Theorem", "Cover's Theorem (linear separability)", "Johnson--Lindenstrauss Lemma (dimensionality reduction)", "Gauss--Markov Theorem", "Jensen's Inequality", "Cauchy--Schwarz Inequality", "Perron--Frobenius Theorem (brief, graph/PageRank context)"]}, {"title": "4.2 Learning Theory", "topics": ["PAC (Probably Approximately Correct) learning framework", "VC (Vapnik--Chervonenkis) dimension", "Bias--variance decomposition", "Generalization bounds", "Empirical Risk Minimization (ERM)", "Structural Risk Minimization", "Rademacher complexity (brief)", "Curse of dimensionality"]}]}]}, {"title": "PART II \u2014 MACHINE LEARNING", "chapters": [{"title": "5. ML Foundations", "subs": [{"title": "5.1 Paradigms", "topics": ["Supervised learning", "Unsupervised learning", "Semi-supervised learning", "Self-supervised learning", "Reinforcement learning", "Online vs batch learning", "Transfer learning, multi-task learning"]}, {"title": "5.2 Core Concepts", "topics": ["Bias--variance tradeoff", "Overfitting and underfitting", "Regularization: L1 (Lasso), L2 (Ridge), Elastic Net", "Feature scaling: normalization, standardization", "Feature engineering and feature selection (filter, wrapper, embedded", "Cross-validation (k-fold, stratified, leave-one-out)", "Hyperparameter tuning: grid search, random search, Bayesian", "Data leakage and its prevention", "Class imbalance handling (SMOTE, class weighting)"]}]}, {"title": "6. Supervised Learning Algorithms", "subs": [{"title": "6.1 Regression", "topics": ["Linear regression (OLS), assumptions", "Ridge, Lasso, Elastic Net regression", "Polynomial regression", "Logistic regression (binary & multinomial)"]}, {"title": "6.2 Classification & Tree-Based Methods", "topics": ["k-Nearest Neighbors (KNN)", "Naive Bayes classifiers", "Decision Trees (CART, ID3, C4.5, entropy/Gini impurity)", "Random Forests", "Gradient Boosting Machines (GBM)", "XGBoost, LightGBM, CatBoost", "AdaBoost", "Support Vector Machines (SVM): hard/soft margin, kernel trick", "Bagging, Boosting, Stacking (ensemble learning)"]}, {"title": "6.3 Model Evaluation Metrics", "topics": ["Accuracy, Precision, Recall, F1-score", "Confusion matrix", "ROC curve, AUC, PR curve", "Log-loss, Brier score", "MAE, MSE, RMSE, R\u00b2 (regression metrics)"]}]}, {"title": "7. Unsupervised Learning", "subs": [{"title": "7.1 Clustering", "topics": ["K-Means, K-Medoids", "Hierarchical clustering (agglomerative, divisive)", "DBSCAN, OPTICS (density-based)", "Gaussian Mixture Models (GMM), Expectation-Maximization (EM)", "Spectral clustering", "Cluster evaluation: silhouette score, Davies-Bouldin index"]}, {"title": "7.2 Dimensionality Reduction", "topics": ["Principal Component Analysis (PCA)", "Independent Component Analysis (ICA)", "Linear Discriminant Analysis (LDA)", "t-SNE", "UMAP", "Autoencoders for dimensionality reduction", "Factor Analysis"]}, {"title": "7.3 Association & Anomaly Detection", "topics": ["Apriori, FP-Growth (association rule mining)", "Isolation Forest, One-Class SVM", "Outlier detection methods"]}]}, {"title": "8. Reinforcement Learning", "subs": [{"title": "8.1 Foundations", "topics": ["Markov Decision Processes (MDP)", "States, actions, rewards, policy, value function", "Bellman equations (expectation & optimality)", "Discount factor, return"]}, {"title": "8.2 Algorithms", "topics": ["Dynamic programming: policy iteration, value iteration", "Monte Carlo methods", "Temporal Difference learning (TD(0), TD(\u03bb))", "Q-Learning, SARSA", "Deep Q-Networks (DQN)", "Policy Gradient methods (REINFORCE)", "Actor-Critic methods (A2C, A3C)", "Proximal Policy Optimization (PPO)", "Exploration vs exploitation (\u03b5-greedy, UCB, Thompson sampling)"]}]}, {"title": "9. Statistical & Learning Theory Topics", "subs": [{"title": "9.1 Theory", "topics": ["Generative vs discriminative models", "Maximum likelihood in ML models", "EM algorithm (general framework)", "Kernel methods and the kernel trick", "Gaussian Processes", "Graphical models: Bayesian networks, Markov Random Fields", "Model selection: AIC, BIC, cross-validation"]}]}]}, {"title": "PART III \u2014 DEEP LEARNING", "chapters": [{"title": "10. Neural Network Fundamentals", "subs": [{"title": "10.1 Building Blocks", "topics": ["Perceptron and multilayer perceptron (MLP)", "Activation functions: sigmoid, tanh, ReLU, Leaky ReLU, ELU, GELU,", "Forward propagation", "Loss functions: MSE, cross-entropy, hinge loss, KL-divergence loss", "Backpropagation algorithm (derivation)", "Computational graphs and automatic differentiation"]}, {"title": "10.2 Training Neural Networks", "topics": ["Weight initialization: Xavier/Glorot, He initialization", "Optimizers: SGD, Momentum, RMSProp, Adam, AdamW", "Learning rate schedules, cyclical learning rates", "Vanishing and exploding gradients", "Gradient clipping", "Batch size effects, mini-batch training"]}, {"title": "10.3 Regularization Techniques", "topics": ["Dropout", "Batch Normalization, Layer Normalization, Group/Instance", "Weight decay (L2 regularization)", "Early stopping", "Data augmentation", "Label smoothing"]}]}, {"title": "11. Convolutional Neural Networks (CNNs)", "subs": [{"title": "11.1 Core Concepts", "topics": ["Convolution operation, filters/kernels, stride, padding", "Pooling: max pooling, average pooling, global pooling", "Receptive field", "Feature maps and parameter sharing", "1x1 convolutions, depthwise separable convolutions", "Transposed convolution (deconvolution)"]}, {"title": "11.2 Architectures", "topics": ["LeNet-5", "AlexNet", "VGGNet", "GoogLeNet/Inception", "ResNet (residual connections)", "DenseNet", "MobileNet, EfficientNet", "Vision Transformers (ViT) --- bridge to attention-based models"]}]}, {"title": "12. Sequence Models: RNNs, LSTMs, GRUs", "subs": [{"title": "12.1 Recurrent Architectures", "topics": ["Vanilla RNNs and Backpropagation Through Time (BPTT)", "Vanishing/exploding gradient in RNNs", "Long Short-Term Memory (LSTM): gates, cell state", "Gated Recurrent Units (GRU)", "Bidirectional RNNs", "Sequence-to-sequence (Seq2Seq) architectures", "Encoder-decoder framework"]}]}, {"title": "13. Attention Mechanisms & Transformers", "subs": [{"title": "13.1 Attention", "topics": ["Additive (Bahdanau) attention", "Multiplicative (Luong) attention", "Self-attention", "Scaled dot-product attention", "Multi-head attention"]}, {"title": "13.2 Transformer Architecture", "topics": ["Positional encoding", "Encoder-decoder Transformer structure", "Layer normalization & residual connections in Transformers", "Masked self-attention (decoder)", "Transformer variants: BERT, GPT, T5, RoBERTa, XLNet", "Vision Transformer (ViT), Swin Transformer"]}]}, {"title": "14. Generative Models", "subs": [{"title": "14.1 Core Models", "topics": ["Autoencoders (AE)", "Variational Autoencoders (VAE) --- ELBO derivation", "Generative Adversarial Networks (GANs): generator, discriminator,", "GAN variants: DCGAN, WGAN, CycleGAN, StyleGAN, Conditional GAN", "Diffusion models (DDPM), score-based generative models", "Normalizing flows (brief)", "Autoregressive generative models (PixelRNN/PixelCNN)"]}]}, {"title": "15. Advanced & Emerging Deep Learning Topics", "subs": [{"title": "15.1 Topics", "topics": ["Graph Neural Networks (GNNs): GCN, GAT, GraphSAGE", "Self-supervised learning (contrastive learning: SimCLR, MoCo)", "Transfer learning & fine-tuning strategies", "Knowledge distillation", "Neural architecture search (NAS)", "Model compression: pruning, quantization", "Meta-learning (few-shot learning, MAML)", "Multimodal learning (CLIP, vision-language models)", "Explainable AI: Grad-CAM, SHAP, LIME", "Adversarial examples and robustness"]}]}]}, {"title": "PART IV \u2014 NATURAL LANGUAGE PROCESSING (NLP)", "chapters": [{"title": "16. Text Preprocessing & Representation", "subs": [{"title": "16.1 Preprocessing", "topics": ["Tokenization (word, subword, character-level)", "Stemming vs Lemmatization", "Stop-word removal", "Regular expressions in text cleaning", "Byte Pair Encoding (BPE), WordPiece, SentencePiece"]}, {"title": "16.2 Text Representation", "topics": ["Bag-of-Words (BoW)", "TF-IDF", "N-gram language models", "One-hot encoding", "Word embeddings: Word2Vec (CBOW, Skip-gram), GloVe, FastText", "Contextual embeddings: ELMo, BERT embeddings", "Sentence/document embeddings (Doc2Vec, Universal Sentence Encoder)"]}]}, {"title": "17. Language Modeling", "subs": [{"title": "17.1 Models", "topics": ["Statistical n-gram language models, smoothing (Laplace, Kneser-Ney)", "Neural language models (RNN-based)", "Transformer-based language models (GPT family)", "Masked language modeling (BERT)", "Perplexity as an evaluation metric", "Autoregressive vs masked vs encoder-decoder LMs"]}]}, {"title": "18. Core NLP Tasks", "subs": [{"title": "18.1 Syntax & Structure", "topics": ["Part-of-Speech (POS) tagging", "Named Entity Recognition (NER)", "Constituency parsing, dependency parsing", "Chunking / shallow parsing"]}, {"title": "18.2 Semantics & Applications", "topics": ["Sentiment analysis", "Topic modeling: LDA, LSA/LSI, NMF", "Text classification", "Machine translation (statistical & neural)", "Text summarization (extractive & abstractive)", "Question answering systems", "Coreference resolution", "Word sense disambiguation", "Relation extraction", "Dialogue systems and chatbots", "Text generation"]}]}, {"title": "19. Sequence-to-Sequence & Transformer-based NLP", "subs": [{"title": "19.1 Architectures & Models", "topics": ["Seq2Seq with attention (NMT)", "Transformer encoder/decoder for NLP tasks", "BERT and its variants (RoBERTa, ALBERT, DistilBERT)", "GPT family (autoregressive generation)", "T5, BART (encoder-decoder pretraining)", "Large Language Models (LLMs): pretraining, fine-tuning, instruction", "Prompt engineering, in-context learning", "Retrieval-Augmented Generation (RAG)"]}]}, {"title": "20. NLP Evaluation", "subs": [{"title": "20.1 Metrics", "topics": ["BLEU score", "ROUGE score", "METEOR", "Perplexity", "F1-score for NER/QA tasks", "Human evaluation methods"]}]}]}, {"title": "PART V \u2014 IMAGE PROCESSING & COMPUTER VISION", "chapters": [{"title": "21. Image Fundamentals", "subs": [{"title": "21.1 Basics", "topics": ["Digital image representation (pixels, resolution, bit depth)", "Color spaces: RGB, HSV, YCbCr, Lab", "Image histograms and histogram equalization", "Sampling and quantization"]}, {"title": "21.2 Spatial Filtering", "topics": ["Convolution and correlation in image processing", "Smoothing filters: mean, Gaussian, median filters", "Sharpening filters, unsharp masking", "Edge detection: Sobel, Prewitt, Canny, Laplacian of Gaussian", "Morphological operations: erosion, dilation, opening, closing"]}, {"title": "21.3 Frequency Domain Processing", "topics": ["Fourier Transform and its properties", "Discrete Cosine Transform (DCT)", "Low-pass and high-pass filtering in frequency domain", "Wavelet transforms (brief)"]}]}, {"title": "22. Feature Extraction (Classical CV)", "subs": [{"title": "22.1 Handcrafted Features", "topics": ["Corner detection: Harris corner detector", "SIFT (Scale-Invariant Feature Transform)", "SURF, ORB", "Histogram of Oriented Gradients (HOG)", "Feature matching and image alignment", "Optical flow (Lucas-Kanade, Horn-Schunck)"]}]}, {"title": "23. Image Segmentation", "subs": [{"title": "23.1 Classical & Deep Segmentation", "topics": ["Thresholding (global, Otsu's method, adaptive)", "Region growing, region splitting/merging", "Watershed algorithm", "Semantic segmentation: FCN, U-Net, DeepLab", "Instance segmentation: Mask R-CNN", "Panoptic segmentation"]}]}, {"title": "24. Object Detection & Recognition", "subs": [{"title": "24.1 Detection Architectures", "topics": ["Sliding window & classical detectors (Viola-Jones)", "R-CNN, Fast R-CNN, Faster R-CNN", "YOLO (You Only Look Once) family", "SSD (Single Shot Detector)", "Anchor boxes, Non-Maximum Suppression (NMS)", "IoU (Intersection over Union) metric", "DETR (Transformer-based detection)"]}]}, {"title": "25. Advanced Computer Vision", "subs": [{"title": "25.1 Topics", "topics": ["Image classification pipelines & transfer learning in CV", "Face detection & recognition (Eigenfaces, FaceNet)", "Pose estimation", "3D vision: stereo vision, depth estimation, point clouds", "Image super-resolution", "Style transfer", "Image generation (GANs, diffusion models for images)", "Video understanding: action recognition, optical flow-based models", "Multimodal vision-language models (CLIP, image captioning)", "Self-supervised representation learning in vision"]}]}, {"title": "26. CV Evaluation Metrics", "subs": [{"title": "26.1 Metrics", "topics": ["mAP (mean Average Precision)", "IoU-based metrics", "Pixel accuracy, Dice coefficient (segmentation)", "PSNR, SSIM (image quality/reconstruction)"]}]}]}, {"title": "PART VI \u2014 PhD INTERVIEW PREPARATION TIPS", "chapters": [{"title": "27. How to Use This Guide", "subs": [{"title": "27.1 Suggested Approach", "topics": ["For every topic, be able to state the definition, the intuition, and", "Practice deriving key results by hand: backpropagation, PCA via SVD,", "Be ready to connect math theory to model behavior (e.g., why does L2", "Prepare to discuss your own research/projects in terms of these", "Know strengths/weaknesses and trade-offs of algorithms (e.g., SVM vs", "Be able to whiteboard a simple neural network forward and backward", "Review recent papers relevant to your target research area, and", "Practice explaining concepts simply --- interviewers often test"]}]}]}]</script>
 <script>
-const board=document.getElementById("board");
-const ball=document.getElementById("ball");
-let x=138,y=138;
-function update(alpha,beta,gamma){
-document.getElementById("ori").innerHTML=`Orientation<br>α ${alpha.toFixed(1)}°<br>β ${beta.toFixed(1)}°<br>γ ${gamma.toFixed(1)}°`;
-board.style.transform=`rotateX(${beta}deg) rotateY(${gamma}deg)`;
-x=Math.max(0,Math.min(275,138+gamma*2));
-y=Math.max(0,Math.min(275,138+beta*2));
-ball.style.left=x+"px";
-ball.style.top=y+"px";
-}
-function enableMotion(){
-const ori=(e)=>update(e.alpha||0,e.beta||0,e.gamma||0);
-const mot=(e)=>{
-let a=e.accelerationIncludingGravity||{x:0,y:0,z:0};
-document.getElementById("acc").innerHTML=`<br>Acceleration<br>X ${a.x.toFixed(2)}<br>Y ${a.y.toFixed(2)}<br>Z ${a.z.toFixed(2)}`;
-let r=e.rotationRate||{};
-document.getElementById("gyro").innerHTML=`<br>Gyroscope<br>α ${((r.alpha)||0).toFixed(2)}<br>β ${((r.beta)||0).toFixed(2)}<br>γ ${((r.gamma)||0).toFixed(2)}`;
-};
-if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
-DeviceOrientationEvent.requestPermission().then(p=>{if(p==="granted"){window.addEventListener("deviceorientation",ori);window.addEventListener("devicemotion",mot);}});
-}else{
-window.addEventListener("deviceorientation",ori);
-window.addEventListener("devicemotion",mot);
-}
-}
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "phdPrepProgress_v1";
+  var COLLAPSE_KEY = "phdPrepCollapse_v1";
+  var ROMANS = ["I","II","III","IV","V","VI","VII","VIII"];
+
+  var raw = JSON.parse(document.getElementById("topic-data").textContent);
+
+  // Assign stable ids: p{partIdx}-c{chapterIdx}-s{subIdx}-t{topicIdx}
+  raw.forEach(function(part, pi){
+    part._id = "p" + pi;
+    part.chapters.forEach(function(ch, ci){
+      ch._id = "p" + pi + "-c" + ci;
+      ch.subs.forEach(function(sub, si){
+        sub._id = "p" + pi + "-c" + ci + "-s" + si;
+        sub._topicIds = sub.topics.map(function(t, ti){
+          return sub._id + "-t" + ti;
+        });
+      });
+    });
+  });
+
+  function loadProgress(){
+    try{
+      var v = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      return v && typeof v === "object" ? v : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    var el = document.getElementById("lastSaved");
+    if(el){
+      var d = new Date();
+      el.textContent = "Last saved " + d.toLocaleTimeString();
+    }
+  }
+  function loadCollapse(){
+    try{
+      var v = JSON.parse(localStorage.getItem(COLLAPSE_KEY) || "{}");
+      return v && typeof v === "object" ? v : {};
+    }catch(e){ return {}; }
+  }
+  function saveCollapse(){
+    localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
+  }
+
+  var progress = loadProgress();
+  var collapsed = loadCollapse();
+
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  // ---------- render ----------
+  var content = document.getElementById("content");
+  var partEls = []; // {part, el, headEl, barFillEl, metaEl, topicEls:[{id, el}]}
+
+  function buildDom(){
+    content.innerHTML = "";
+    partEls = [];
+
+    raw.forEach(function(part, pi){
+      var partDiv = document.createElement("div");
+      partDiv.className = "part";
+      partDiv.dataset.id = part._id;
+      if(collapsed[part._id]) partDiv.classList.add("collapsed");
+
+      var head = document.createElement("div");
+      head.className = "part-head";
+      head.innerHTML =
+        '<span class="caret">▾</span>' +
+        '<div class="part-title"><span class="roman">' + (ROMANS[pi] || (pi+1)) + '.</span>' + escapeHtml(stripPartLabel(part.title)) + '</div>' +
+        '<div class="part-bar"><div class="part-bar-fill"></div></div>' +
+        '<div class="part-meta"></div>';
+      head.addEventListener("click", function(){
+        partDiv.classList.toggle("collapsed");
+        collapsed[part._id] = partDiv.classList.contains("collapsed");
+        saveCollapse();
+      });
+      partDiv.appendChild(head);
+
+      var body = document.createElement("div");
+      body.className = "part-body";
+
+      var topicEls = [];
+
+      part.chapters.forEach(function(ch){
+        var chDiv = document.createElement("div");
+        chDiv.className = "chapter";
+        chDiv.dataset.id = ch._id;
+        if(collapsed[ch._id]) chDiv.classList.add("collapsed");
+
+        var chHead = document.createElement("div");
+        chHead.className = "chapter-head";
+        chHead.innerHTML =
+          '<span class="caret">▾</span>' +
+          '<div class="chapter-title">' + escapeHtml(ch.title) + '</div>' +
+          '<div class="chapter-meta"></div>';
+        chHead.addEventListener("click", function(){
+          chDiv.classList.toggle("collapsed");
+          collapsed[ch._id] = chDiv.classList.contains("collapsed");
+          saveCollapse();
+        });
+        chDiv.appendChild(chHead);
+
+        var chBody = document.createElement("div");
+        chBody.className = "chapter-body";
+
+        ch.subs.forEach(function(sub){
+          var subDiv = document.createElement("div");
+          subDiv.className = "sub";
+          subDiv.dataset.id = sub._id;
+
+          var subTitle = document.createElement("div");
+          subTitle.className = "sub-title";
+          subTitle.innerHTML = '<span>' + escapeHtml(sub.title) + '</span><span class="n"></span>';
+          subDiv.appendChild(subTitle);
+
+          sub.topics.forEach(function(topicText, ti){
+            var id = sub._topicIds[ti];
+            var row = document.createElement("label");
+            row.className = "topic";
+            row.dataset.id = id;
+            row.dataset.text = topicText.toLowerCase();
+            if(progress[id]) row.classList.add("done");
+            row.innerHTML =
+              '<input type="checkbox" ' + (progress[id] ? "checked" : "") + '>' +
+              '<span class="box"></span>' +
+              '<span class="label">' + escapeHtml(topicText) + '</span>';
+            var checkbox = row.querySelector("input");
+            checkbox.addEventListener("change", function(){
+              progress[id] = checkbox.checked;
+              row.classList.toggle("done", checkbox.checked);
+              saveProgress();
+              updateCounts();
+            });
+            subDiv.appendChild(row);
+            topicEls.push({id:id, el:row, subEl:subDiv, chEl:chDiv, partEl:partDiv});
+          });
+
+          chBody.appendChild(subDiv);
+        });
+
+        chDiv.appendChild(chBody);
+        body.appendChild(chDiv);
+      });
+
+      partDiv.appendChild(body);
+      content.appendChild(partDiv);
+
+      partEls.push({
+        part: part,
+        el: partDiv,
+        barFillEl: head.querySelector(".part-bar-fill"),
+        metaEl: head.querySelector(".part-meta"),
+        topicEls: topicEls
+      });
+    });
+  }
+
+  function stripPartLabel(title){
+    // title like "PART I — MATHEMATICAL FOUNDATIONS..." -> strip "PART I — "
+    var idx = title.indexOf("—");
+    return idx >= 0 ? title.slice(idx+1).trim() : title;
+  }
+
+  // ---------- counts / spine / header ----------
+  var spineEl = document.getElementById("spine");
+  var spineLegendEl = document.getElementById("spineLegend");
+
+  function buildSpine(){
+    spineEl.innerHTML = "";
+    spineLegendEl.innerHTML = "";
+    raw.forEach(function(part, pi){
+      var seg = document.createElement("div");
+      seg.className = "spine-seg";
+      seg.innerHTML = '<div class="spine-fill"></div><div class="spine-num">' + (ROMANS[pi] || (pi+1)) + '</div>';
+      seg.title = stripPartLabel(part.title);
+      seg.addEventListener("click", function(){
+        var target = partEls[pi].el;
+        target.classList.remove("collapsed");
+        collapsed[part._id] = false;
+        saveCollapse();
+        target.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      spineEl.appendChild(seg);
+
+      var lbl = document.createElement("span");
+      lbl.textContent = ROMANS[pi] || (pi+1);
+      spineLegendEl.appendChild(lbl);
+    });
+  }
+
+  function updateCounts(){
+    var totalAll = 0, doneAll = 0;
+
+    partEls.forEach(function(pe){
+      var total = pe.topicEls.length;
+      var done = pe.topicEls.filter(function(t){ return progress[t.id]; }).length;
+      var pct = total ? Math.round(done/total*100) : 0;
+
+      pe.barFillEl.style.width = pct + "%";
+      pe.metaEl.textContent = done + "/" + total;
+
+      totalAll += total;
+      doneAll += done;
+    });
+
+    // spine
+    var segs = spineEl.querySelectorAll(".spine-seg");
+    partEls.forEach(function(pe, i){
+      var total = pe.topicEls.length;
+      var done = pe.topicEls.filter(function(t){ return progress[t.id]; }).length;
+      var pct = total ? Math.round(done/total*100) : 0;
+      var fill = segs[i].querySelector(".spine-fill");
+      fill.style.width = pct + "%";
+    });
+
+    // chapters
+    raw.forEach(function(part){
+      part.chapters.forEach(function(ch){
+        var chDiv = content.querySelector('.chapter[data-id="' + ch._id + '"]');
+        if(!chDiv) return;
+        var ids = [];
+        ch.subs.forEach(function(s){ ids = ids.concat(s._topicIds); });
+        var total = ids.length;
+        var done = ids.filter(function(id){ return progress[id]; }).length;
+        chDiv.querySelector(".chapter-meta").textContent = done + "/" + total;
+      });
+    });
+
+    // subs
+    raw.forEach(function(part){
+      part.chapters.forEach(function(ch){
+        ch.subs.forEach(function(sub){
+          var subDiv = content.querySelector('.sub[data-id="' + sub._id + '"]');
+          if(!subDiv) return;
+          var total = sub._topicIds.length;
+          var done = sub._topicIds.filter(function(id){ return progress[id]; }).length;
+          subDiv.querySelector(".sub-title .n").textContent = done + "/" + total;
+        });
+      });
+    });
+
+    var overallPct = totalAll ? Math.round(doneAll/totalAll*100) : 0;
+    document.getElementById("overallPct").innerHTML = overallPct + "<span>%</span>";
+    document.getElementById("overallCount").textContent = doneAll + " / " + totalAll + " topics marked complete";
+  }
+
+  // ---------- search ----------
+  var searchInput = document.getElementById("search");
+  var searchTimer = null;
+
+  function applyFilter(){
+    var q = searchInput.value.trim().toLowerCase();
+
+    raw.forEach(function(part){
+      var partDiv = content.querySelector('.part[data-id="' + part._id + '"]');
+      var partHasMatch = false;
+
+      part.chapters.forEach(function(ch){
+        var chDiv = content.querySelector('.chapter[data-id="' + ch._id + '"]');
+        var chHasMatch = false;
+
+        ch.subs.forEach(function(sub){
+          var subDiv = content.querySelector('.sub[data-id="' + sub._id + '"]');
+          var subHasMatch = false;
+
+          subDiv.querySelectorAll(".topic").forEach(function(row){
+            var text = row.dataset.text;
+            var match = !q || text.indexOf(q) !== -1;
+            row.classList.toggle("hidden", !match);
+            var labelEl = row.querySelector(".label");
+            if(q && match){
+              var raw2 = row.querySelector(".label").textContent;
+              labelEl.innerHTML = highlight(raw2, q);
+            } else {
+              labelEl.textContent = row.querySelector(".label").textContent;
+            }
+            if(match) subHasMatch = true;
+          });
+
+          subDiv.classList.toggle("hidden", !subHasMatch);
+          if(subHasMatch) chHasMatch = true;
+        });
+
+        chDiv.classList.toggle("hidden", !chHasMatch);
+        if(q && chHasMatch) chDiv.classList.remove("collapsed");
+        else if(!q) chDiv.classList.toggle("collapsed", !!collapsed[ch._id]);
+        if(chHasMatch) partHasMatch = true;
+      });
+
+      partDiv.classList.toggle("hidden", !partHasMatch);
+      if(q && partHasMatch) partDiv.classList.remove("collapsed");
+      else if(!q) partDiv.classList.toggle("collapsed", !!collapsed[part._id]);
+    });
+  }
+
+  function highlight(text, q){
+    var idx = text.toLowerCase().indexOf(q);
+    if(idx === -1) return escapeHtml(text);
+    return escapeHtml(text.slice(0,idx)) + "<mark>" + escapeHtml(text.slice(idx, idx+q.length)) + "</mark>" + escapeHtml(text.slice(idx+q.length));
+  }
+
+  searchInput.addEventListener("input", function(){
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilter, 80);
+  });
+
+  // ---------- controls ----------
+  document.getElementById("expandAll").addEventListener("click", function(){
+    content.querySelectorAll(".part, .chapter").forEach(function(el){
+      el.classList.remove("collapsed");
+    });
+    collapsed = {};
+    saveCollapse();
+  });
+  document.getElementById("collapseAll").addEventListener("click", function(){
+    content.querySelectorAll(".part, .chapter").forEach(function(el){
+      el.classList.add("collapsed");
+      collapsed[el.dataset.id] = true;
+    });
+    saveCollapse();
+  });
+  document.getElementById("resetProgress").addEventListener("click", function(){
+    if(!confirm("Reset all completed topics? This cannot be undone.")) return;
+    progress = {};
+    saveProgress();
+    content.querySelectorAll(".topic").forEach(function(row){
+      row.classList.remove("done");
+      row.querySelector("input").checked = false;
+    });
+    updateCounts();
+  });
+
+  // ---------- init ----------
+  buildDom();
+  buildSpine();
+  updateCounts();
+  var lastSavedEl = document.getElementById("lastSaved");
+  if(Object.keys(progress).length){
+    lastSavedEl.textContent = "Progress loaded from this browser";
+  }
+})();
+
 </script>
 </body>
 </html>
